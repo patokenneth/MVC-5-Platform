@@ -13,7 +13,8 @@ namespace SimpleApp.Controllers
         // GET: Home
         public ActionResult Index()
         {
-            return View();
+            return View(GetTimeStamp());
+            //HttpContext.Application["event"]
         }
 
         [HttpPost]
@@ -32,7 +33,34 @@ namespace SimpleApp.Controllers
             }
 
             ViewBag.SelectedColor = Session["color"] = color;
-            return View();
+           // System.Diagnostics.Debugger.Break();
+            return View(GetTimeStamp());
+            //HttpContext.Application["event"]
+        }
+
+        public ActionResult Modules()
+        {
+            var modules = HttpContext.ApplicationInstance.Modules;
+            Tuple<string, string>[] data =
+            modules.AllKeys
+            .Select(x => new Tuple<string, string>(
+            x.StartsWith("__Dynamic") ? x.Split('_', ',')[3] : x,
+            modules[x].GetType().Name))
+            .OrderBy(x => x.Item1).ToArray();
+
+            return View(data);
+        }
+
+        public IList<string> GetTimeStamp()
+        {
+            IList<string> TimeList = new List<string> {
+             string.Format("Application Time : {0}", HttpContext.Application["time_stamp"]),
+            string.Format("Request Time : {0}", Session["request_stamp"]) };
+
+            //TimeList.Add(mod);
+            //TimeList.Add(modII);
+
+            return TimeList;
         }
     }
 }
